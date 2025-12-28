@@ -1,0 +1,111 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Customer" as cust
+actor "Employee" as emp
+actor "Administrator" as admin
+actor "Timer/Clock" as timer
+
+package "Beauty Salon Appointment System" {
+    
+    usecase "Log In" as UC_Login
+    usecase "Book Appointment" as UC_Book
+    usecase "Check Availability" as UC_Check
+    usecase "Suggest Alternative Slot" as UC_Suggest
+    usecase "Cancel Appointment" as UC_Cancel
+    usecase "View Services" as UC_View
+    usecase "Approve Appointment" as UC_Approve
+    usecase "Manage Services" as UC_ManageServices
+    usecase "Manage Employees" as UC_ManageEmployees
+    usecase "Send Reminder" as UC_Reminder
+
+    ' Customer Relationships [cite: 52]
+    cust -- UC_Book
+    cust -- UC_Cancel
+    cust -- UC_View
+
+    ' Employee Relationships [cite: 53]
+    emp -- UC_View
+    emp -- UC_Approve
+
+    ' Administrator Relationships [cite: 54]
+    admin -- UC_ManageServices
+    admin -- UC_ManageEmployees
+
+    ' Timer Relationships [cite: 55]
+    timer -- UC_Reminder
+
+    ' Include Relationships [cite: 59-61, 161]
+    UC_Book ..> UC_Check : <<include>>
+    UC_Book ..> UC_Login : <<include>>
+    UC_Approve ..> UC_Login : <<include>>
+    UC_ManageServices ..> UC_Login : <<include>>
+
+    ' Extend Relationships [cite: 64, 162]
+    UC_Suggest .> UC_Book : <<extend>>
+    
+    note right of UC_Suggest
+      Eğer seçilen saat doluysa 
+      tetiklenir. [cite: 88]
+    end note
+}
+@enduml
+
+@startuml
+
+class User {
+    +id: Int
+    +name: String
+    +email: String
+    +password: String
+    +login()
+    +logout()
+}
+
+class Customer {
+    ' User sınıfından miras alır
+}
+
+class Employee {
+    +phone: String
+    +adress: String
+    +specialty: String
+    +workingHours: String
+    +bookApp()
+    +cancelApp()
+    +approveApp()
+    +viewApps()
+}
+
+class Administrator {
+    +addService()
+    +addEmployee()
+}
+
+class Service {
+    ' Appointment içinde referans verilmiş [cite: 24]
+}
+
+class Appointment {
+    +id: Int
+    +date: Date
+    +time: String
+    +status: String
+    +customer: Customer
+    +employee: Employee
+    +service: Service
+    +bookApp()
+    +cancelApp()
+}
+
+' İlişkiler (Inheritance & Associations)
+User <|-- Customer
+User <|-- Employee
+User <|-- Administrator
+
+Customer "1" -- "0..*" Appointment : makes >
+Employee "1" -- "0..*" Appointment : manages >
+Service "1" -- "0..*" Appointment : part of >
+
+@enduml
